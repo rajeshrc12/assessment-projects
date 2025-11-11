@@ -1,4 +1,5 @@
 import { prisma } from "../config/prisma.js";
+import { executeTasks } from "../worker/job.js";
 
 export const getJobs = async (req, res) => {
   try {
@@ -15,7 +16,7 @@ export const getJobs = async (req, res) => {
 
 export const addJob = async (req, res) => {
   try {
-    const { name, tasks = [] } = req.body;
+    const { name = "", tasks = [] } = req.body;
 
     if (!name) {
       return res.status(400).json({ error: "Job name is required" });
@@ -28,13 +29,14 @@ export const addJob = async (req, res) => {
           ? {
               create: tasks.map((task) => ({
                 name: task.name,
+                number: task.number,
               })),
             }
           : undefined,
       },
       include: { tasks: true },
     });
-
+    executeTasks(job);
     return res.status(201).json(job);
   } catch (error) {
     console.error("Error adding job:", error);
