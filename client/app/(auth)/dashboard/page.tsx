@@ -103,16 +103,31 @@ const DashboardPage = () => {
                     <TableCell className="px-4 py-3">
                       {job.tasks.length}
                     </TableCell>
-                    <TableCell
-                      className={`px-4 py-3 font-medium ${
-                        status === "Completed"
-                          ? "text-green-600"
-                          : "text-yellow-600"
-                      }`}
-                    >
-                      {status}
+                    <TableCell className="px-4 py-3">
+                      <span
+                        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                          status === "Completed"
+                            ? "bg-green-100 text-green-700 border border-green-300"
+                            : "bg-yellow-100 text-yellow-700 border border-yellow-300"
+                        }`}
+                      >
+                        {status}
+                      </span>
                     </TableCell>
-                    <TableCell className="px-4 py-3">{percentage}%</TableCell>
+                    <TableCell className="px-4 py-3">
+                      <span
+                        className={`inline-flex items-center justify-center rounded-full px-2.5 py-0.5 text-xs font-medium min-w-[45px] text-center
+                        ${
+                          percentage === 100
+                            ? "bg-green-100 text-green-700 border border-green-300"
+                            : percentage >= 50
+                            ? "bg-yellow-100 text-yellow-700 border border-yellow-300"
+                            : "bg-red-100 text-red-700 border border-red-300"
+                        }`}
+                      >
+                        {percentage}%
+                      </span>
+                    </TableCell>
                     <TableCell
                       key={tick}
                       className="px-4 py-3 text-muted-foreground"
