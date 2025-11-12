@@ -116,6 +116,21 @@ button {
   cursor: pointer;
 }
 
+/* For Chrome, Edge, Safari */
+::-webkit-scrollbar {
+  width: 4px; /* scrollbar width */
+  height: 4px; /* scrollbar height (for horizontal scroll) */
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #a1a1aa; /* Tailwind gray-400 */
+  border-radius: 9999px; /* fully rounded */
+}
+
+::-webkit-scrollbar-track {
+  background-color: transparent; /* can also use #f4f4f5 (gray-100) */
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
