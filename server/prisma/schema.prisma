@@ -19,8 +19,7 @@ model Task {
   id        Int      @id @default(autoincrement())
   job       Job      @relation(fields: [jobId], references: [id])
   jobId     Int
-  number    Int
-  result    String   @default("")
+  time      Int
   status    String   @default("pending")
   name      String
   createdAt DateTime @default(now())

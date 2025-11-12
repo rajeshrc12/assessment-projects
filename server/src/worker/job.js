@@ -1,6 +1,7 @@
 import os from "os";
 import Piscina from "piscina";
 import BetterQueue from "better-queue";
+import { prisma } from "../config/prisma.js";
 
 const numCPUs = os.cpus().length;
 
@@ -14,15 +15,26 @@ const queue = new BetterQueue(
     try {
       console.log(`Processing Task ID ${task.id}`);
       const result = await piscina.run(task);
-      console.log(`Task ${task.id} completed`);
+
+      const taskUpdate = await prisma.task.update({
+        where: { id: task.id },
+        data: { status: "success" },
+      });
+
+      console.log(`Task ${task.id} completed`, taskUpdate);
       done(null, result);
     } catch (err) {
-      console.error(`Task ${task.id} failed`, err);
+      const taskUpdate = await prisma.task.update({
+        where: { id: task.id },
+        data: { status: "failed" },
+      });
+
+      console.error(`Task ${task.id} failed`, err, taskUpdate);
       done(err);
     }
   },
   {
-    concurrent: numCPUs, // how many tasks to process simultaneously
+    concurrent: numCPUs,
   }
 );
 
@@ -44,7 +56,7 @@ export const executeTasks = async (job) => {
     const acceptedTasks = [];
     console.time("task");
     for (const t of tasks) {
-      if (!t.id && !t.number) {
+      if (!t.id && !t.time) {
         console.warn(`Skipping invalid task:`, t);
         continue;
       }

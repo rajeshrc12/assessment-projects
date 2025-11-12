@@ -29,7 +29,7 @@ export const addJob = async (req, res) => {
           ? {
               create: tasks.map((task) => ({
                 name: task.name,
-                number: task.number,
+                time: task.time,
               })),
             }
           : undefined,

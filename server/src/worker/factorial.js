@@ -1,12 +1,12 @@
-export default async ({ id, number }) => {
-  console.log(`[Worker ${id}] Timer started for ${number}ms`);
+export default async ({ id, time }) => {
+  console.log(`[Worker ${id}] Timer started for ${time}ms`);
 
   await new Promise((resolve) => {
     setTimeout(() => {
-      console.log(`[Worker ${id}] Timer ended (${number}ms elapsed)`);
+      console.log(`[Worker ${id}] Timer ended (${time}ms elapsed)`);
       resolve();
-    }, number * 1000);
+    }, time * 1000);
   });
 
-  return { id, number };
+  return { id, time };
 };

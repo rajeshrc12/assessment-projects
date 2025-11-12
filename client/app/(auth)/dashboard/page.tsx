@@ -10,10 +10,11 @@ import {
 import AddJob from "@/components/add-job";
 import { useJobs } from "@/hooks/useJobs";
 import { LoaderCircle } from "lucide-react";
+import { Job } from "@/types/common";
 
 const DashboardPage = () => {
   const { data: jobs, isLoading } = useJobs();
-  console.log(jobs);
+
   return (
     <div className="w-[60%] mx-auto">
       <div className="flex justify-between p-2">
@@ -27,6 +28,8 @@ const DashboardPage = () => {
               <TableHead className="h-9 py-2">SR</TableHead>
               <TableHead className="h-9 py-2">Name</TableHead>
               <TableHead className="h-9 py-2">Tasks</TableHead>
+              <TableHead className="h-9 py-2">Status</TableHead>
+              <TableHead className="h-9 py-2">Percentage</TableHead>
               <TableHead className="h-9 py-2">Created At</TableHead>
             </TableRow>
           </TableHeader>
@@ -42,30 +45,42 @@ const DashboardPage = () => {
                 </TableCell>
               </TableRow>
             ) : jobs && jobs.length > 0 ? (
-              jobs.map(
-                (
-                  job: {
-                    name: string;
-                    createdAt: string;
-                    id: string;
-                    tasks: [];
-                  },
-                  index: number
-                ) => (
-                  <TableRow key={job?.id}>
+              jobs.map((job: Job, index: number) => {
+                // Calculate completed tasks and percentage
+                const totalTasks = job.tasks.length;
+                const completedTasks = job.tasks.filter(
+                  (t) => t.status === "success"
+                ).length;
+
+                const percentage =
+                  totalTasks > 0
+                    ? Math.round((completedTasks / totalTasks) * 100)
+                    : 0;
+
+                const status =
+                  completedTasks === totalTasks && totalTasks > 0
+                    ? "Completed"
+                    : "In Progress";
+
+                return (
+                  <TableRow key={job.id}>
                     <TableCell className="py-2">{index + 1}</TableCell>
                     <TableCell className="py-2 font-medium">
-                      {job?.name}
+                      {job.name}
                     </TableCell>
                     <TableCell className="py-2 font-medium">
-                      {job?.tasks.length}
+                      {job.tasks.length}
+                    </TableCell>
+                    <TableCell className="py-2 font-medium">{status}</TableCell>
+                    <TableCell className="py-2 font-medium">
+                      {percentage}%
                     </TableCell>
                     <TableCell className="py-2">
-                      {new Date(job?.createdAt).toLocaleString()}
+                      {new Date(job.createdAt).toLocaleString()}
                     </TableCell>
                   </TableRow>
-                )
-              )
+                );
+              })
             ) : (
               <TableRow>
                 <TableCell

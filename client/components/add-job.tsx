@@ -19,7 +19,7 @@ import { useQueryClient } from "@tanstack/react-query";
 
 const AddJob = () => {
   const [tasks, setTasks] = useState<{
-    [key: string]: { name: string; number: string };
+    [key: string]: { name: string; time: string };
   }>({});
   const [error, setError] = useState<string>("");
   const [jobName, setJobName] = useState<string>("");
@@ -31,13 +31,13 @@ const AddJob = () => {
     const id = Date.now().toString();
     setTasks((prev) => ({
       ...prev,
-      [id]: { name: "", number: "" },
+      [id]: { name: "", time: "" },
     }));
   };
   // Update task dynamically
   const handleTaskChange = (
     id: string,
-    field: "name" | "number",
+    field: "name" | "time",
     value: string
   ) => {
     setTasks((prev) => ({
@@ -70,10 +70,10 @@ const AddJob = () => {
       return;
     }
 
-    // Check if every task has both name and number filled
-    const invalid = taskList.some((t) => !t.name.trim() || !t.number.trim());
+    // Check if every task has both name and time filled
+    const invalid = taskList.some((t) => !t.name.trim() || !t.time.trim());
     if (invalid) {
-      setError("Please fill in both name and number for all tasks.");
+      setError("Please fill in both name and time for all tasks.");
       return;
     }
 
@@ -85,7 +85,7 @@ const AddJob = () => {
         name: jobName,
         tasks: Object.values(tasks).map((task) => ({
           ...task,
-          number: Number(task.number),
+          time: Number(task.time),
         })),
       });
       console.log("Job created:", response);
@@ -119,7 +119,7 @@ const AddJob = () => {
         <AlertDialogHeader>
           <AlertDialogTitle>Add Job</AlertDialogTitle>
           <AlertDialogDescription>
-            Add one or more tasks with name and number.
+            Add one or more tasks with name and time.
           </AlertDialogDescription>
         </AlertDialogHeader>
 
@@ -155,9 +155,9 @@ const AddJob = () => {
                   <Input
                     type="number"
                     placeholder="Time (sec)"
-                    value={task.number}
+                    value={task.time}
                     onChange={(e) =>
-                      handleTaskChange(id, "number", e.target.value)
+                      handleTaskChange(id, "time", e.target.value)
                     }
                   />
                   <Button
