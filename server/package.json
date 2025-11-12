@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "src/server.js",
-  "types": "module",
+  "type": "module",
   "scripts": {
     "dev": "node src/server.js"
   },
