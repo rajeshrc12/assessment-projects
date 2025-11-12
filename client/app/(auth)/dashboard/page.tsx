@@ -13,10 +13,11 @@ import { LoaderCircle, RefreshCcw } from "lucide-react";
 import { Job } from "@/types/common";
 import { fromNow } from "@/lib/date";
 import { Button } from "@/components/ui/button";
+import { useState } from "react";
 
 const DashboardPage = () => {
   const { data: jobs, isLoading, refetch } = useJobs();
-
+  const [tick, setTick] = useState(0);
   return (
     <div className="w-[80%] max-w-4xl mx-auto py-10">
       {/* Header */}
@@ -27,8 +28,9 @@ const DashboardPage = () => {
           </h1>
           <Button
             variant={"ghost"}
-            onClick={() => {
-              refetch();
+            onClick={async () => {
+              await refetch();
+              setTick((prev) => prev + 1);
             }}
           >
             <RefreshCcw />
@@ -111,7 +113,10 @@ const DashboardPage = () => {
                       {status}
                     </TableCell>
                     <TableCell className="px-4 py-3">{percentage}%</TableCell>
-                    <TableCell className="px-4 py-3 text-muted-foreground">
+                    <TableCell
+                      key={tick}
+                      className="px-4 py-3 text-muted-foreground"
+                    >
                       {fromNow(job.createdAt)}
                     </TableCell>
                   </TableRow>
