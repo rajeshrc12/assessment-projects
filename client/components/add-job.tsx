@@ -15,6 +15,7 @@ import { Button } from "./ui/button";
 import React, { useState } from "react";
 import { Delete, Loader } from "lucide-react";
 import api from "@/lib/api";
+import { useQueryClient } from "@tanstack/react-query";
 
 const AddJob = () => {
   const [tasks, setTasks] = useState<{
@@ -24,6 +25,7 @@ const AddJob = () => {
   const [jobName, setJobName] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [open, setOpen] = useState<boolean>(false);
+  const queryClient = useQueryClient();
   // Add new empty task
   const handleAddTask = () => {
     const id = Date.now().toString();
@@ -32,7 +34,6 @@ const AddJob = () => {
       [id]: { name: "", number: "" },
     }));
   };
-
   // Update task dynamically
   const handleTaskChange = (
     id: string,
@@ -88,6 +89,7 @@ const AddJob = () => {
         })),
       });
       console.log("Job created:", response);
+      queryClient.invalidateQueries({ queryKey: ["jobs"] });
       cleanup();
     } catch (error: any) {
       console.error("Error creating job:", error);
