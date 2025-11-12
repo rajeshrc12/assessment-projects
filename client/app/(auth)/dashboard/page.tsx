@@ -9,74 +9,110 @@ import {
 } from "@/components/ui/table";
 import AddJob from "@/components/add-job";
 import { useJobs } from "@/hooks/useJobs";
-import { LoaderCircle } from "lucide-react";
+import { LoaderCircle, RefreshCcw } from "lucide-react";
 import { Job } from "@/types/common";
+import { fromNow } from "@/lib/date";
+import { Button } from "@/components/ui/button";
 
 const DashboardPage = () => {
-  const { data: jobs, isLoading } = useJobs();
+  const { data: jobs, isLoading, refetch } = useJobs();
 
   return (
-    <div className="w-[60%] mx-auto">
-      <div className="flex justify-between p-2">
-        <div className="font-bold text-xl">Jobs</div>
+    <div className="w-[80%] max-w-4xl mx-auto py-10">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-2">
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+            Job Dashboard
+          </h1>
+          <Button
+            variant={"ghost"}
+            onClick={() => {
+              refetch();
+            }}
+          >
+            <RefreshCcw />
+          </Button>
+        </div>
+
         <AddJob />
       </div>
-      <div className="overflow-hidden rounded-md border bg-background">
+
+      {/* Table Wrapper */}
+      <div className="rounded-lg border border-border bg-card shadow-sm overflow-hidden">
         <Table>
           <TableHeader>
-            <TableRow className="bg-muted/50">
-              <TableHead className="h-9 py-2">SR</TableHead>
-              <TableHead className="h-9 py-2">Name</TableHead>
-              <TableHead className="h-9 py-2">Tasks</TableHead>
-              <TableHead className="h-9 py-2">Status</TableHead>
-              <TableHead className="h-9 py-2">Percentage</TableHead>
-              <TableHead className="h-9 py-2">Created At</TableHead>
+            <TableRow className="bg-muted/40">
+              <TableHead className="h-10 px-4 text-left text-sm font-medium">
+                SR
+              </TableHead>
+              <TableHead className="h-10 px-4 text-left text-sm font-medium">
+                Name
+              </TableHead>
+              <TableHead className="h-10 px-4 text-left text-sm font-medium">
+                Tasks
+              </TableHead>
+              <TableHead className="h-10 px-4 text-left text-sm font-medium">
+                Status
+              </TableHead>
+              <TableHead className="h-10 px-4 text-left text-sm font-medium">
+                Percentage
+              </TableHead>
+              <TableHead className="h-10 px-4 text-left text-sm font-medium">
+                Created At
+              </TableHead>
             </TableRow>
           </TableHeader>
 
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={7} className="py-8 text-center">
+                <TableCell colSpan={7} className="py-10 text-center">
                   <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
                     <LoaderCircle className="h-6 w-6 animate-spin" />
-                    <span>Loading Jobs...</span>
+                    <span>Loading jobs...</span>
                   </div>
                 </TableCell>
               </TableRow>
             ) : jobs && jobs.length > 0 ? (
               jobs.map((job: Job, index: number) => {
-                // Calculate completed tasks and percentage
                 const totalTasks = job.tasks.length;
                 const completedTasks = job.tasks.filter(
                   (t) => t.status === "success"
                 ).length;
-
                 const percentage =
                   totalTasks > 0
                     ? Math.round((completedTasks / totalTasks) * 100)
                     : 0;
-
                 const status =
                   completedTasks === totalTasks && totalTasks > 0
                     ? "Completed"
                     : "In Progress";
 
                 return (
-                  <TableRow key={job.id}>
-                    <TableCell className="py-2">{index + 1}</TableCell>
-                    <TableCell className="py-2 font-medium">
+                  <TableRow
+                    key={job.id}
+                    className="hover:bg-muted/30 transition-colors"
+                  >
+                    <TableCell className="px-4 py-3">{index + 1}</TableCell>
+                    <TableCell className="px-4 py-3 font-medium text-foreground">
                       {job.name}
                     </TableCell>
-                    <TableCell className="py-2 font-medium">
+                    <TableCell className="px-4 py-3">
                       {job.tasks.length}
                     </TableCell>
-                    <TableCell className="py-2 font-medium">{status}</TableCell>
-                    <TableCell className="py-2 font-medium">
-                      {percentage}%
+                    <TableCell
+                      className={`px-4 py-3 font-medium ${
+                        status === "Completed"
+                          ? "text-green-600"
+                          : "text-yellow-600"
+                      }`}
+                    >
+                      {status}
                     </TableCell>
-                    <TableCell className="py-2">
-                      {new Date(job.createdAt).toLocaleString()}
+                    <TableCell className="px-4 py-3">{percentage}%</TableCell>
+                    <TableCell className="px-4 py-3 text-muted-foreground">
+                      {fromNow(job.createdAt)}
                     </TableCell>
                   </TableRow>
                 );
@@ -85,9 +121,9 @@ const DashboardPage = () => {
               <TableRow>
                 <TableCell
                   colSpan={7}
-                  className="text-center py-4 text-muted-foreground"
+                  className="text-center py-8 text-muted-foreground"
                 >
-                  No Jobs found
+                  No jobs found
                 </TableCell>
               </TableRow>
             )}
