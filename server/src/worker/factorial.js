@@ -1,31 +1,12 @@
-import { parentPort, workerData } from "worker_threads";
+export default async ({ id, number }) => {
+  console.log(`[Worker ${id}] Timer started for ${number}ms`);
 
-const { id, tasks } = workerData;
-
-console.log(`Worker ${id} started with ${tasks.length} tasks`);
-
-async function processTask(task) {
-  return new Promise((resolve) => {
-    const { number } = task;
-    console.log(`Worker ${id} processing ${number}s task`);
-
+  await new Promise((resolve) => {
     setTimeout(() => {
-      const message = `Worker ${id} completed ${number}s task`;
-      console.log(message);
-      resolve(message);
+      console.log(`[Worker ${id}] Timer ended (${number}ms elapsed)`);
+      resolve();
     }, number * 1000);
   });
-}
 
-(async () => {
-  const results = [];
-  for (const task of tasks) {
-    const result = await processTask(task);
-    results.push(result);
-  }
-
-  parentPort.postMessage({
-    workerId: id,
-    results,
-  });
-})();
+  return { id, number };
+};

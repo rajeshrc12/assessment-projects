@@ -1,20 +1,39 @@
 import os from "os";
-import { Worker } from "worker_threads";
+import Piscina from "piscina";
+import BetterQueue from "better-queue";
 
 const numCPUs = os.cpus().length;
 
-function runWorker(workerData) {
-  return new Promise((resolve, reject) => {
-    const worker = new Worker("./src/worker/factorial.js", { workerData });
+const piscina = new Piscina({
+  filename: "./src/worker/factorial.js",
+  maxThreads: numCPUs,
+});
 
-    worker.on("message", (msg) => resolve(msg));
-    worker.on("error", reject);
-    worker.on("exit", (code) => {
-      if (code !== 0)
-        reject(new Error(`Worker stopped with exit code ${code}`));
-    });
-  });
-}
+const queue = new BetterQueue(
+  async (task, done) => {
+    try {
+      console.log(`Processing Task ID ${task.id}`);
+      const result = await piscina.run(task);
+      console.log(`Task ${task.id} completed`);
+      done(null, result);
+    } catch (err) {
+      console.error(`Task ${task.id} failed`, err);
+      done(err);
+    }
+  },
+  {
+    concurrent: numCPUs, // how many tasks to process simultaneously
+  }
+);
+
+// Listen for queue-level events
+queue.on("drain", () => {
+  console.log("All tasks in queue processed");
+  console.timeEnd("task");
+});
+queue.on("task_finish", (taskId, result) => {
+  console.log(`Task finished:`, result);
+});
 
 export const executeTasks = async (job) => {
   try {
@@ -22,30 +41,23 @@ export const executeTasks = async (job) => {
     if (!Array.isArray(tasks) || tasks.length === 0)
       throw new Error("Provide an array of tasks");
 
-    console.log(`Detected ${numCPUs} CPU cores`);
-    console.log(`Received ${tasks.length} tasks`);
-    console.time("parallel-tasks");
+    const acceptedTasks = [];
+    console.time("task");
+    for (const t of tasks) {
+      if (!t.id && !t.number) {
+        console.warn(`Skipping invalid task:`, t);
+        continue;
+      }
 
-    const taskGroups = Array.from({ length: numCPUs }, () => []);
+      queue.push(t, (err, result) => {
+        if (err) console.error(`Queue error for task ${t.id}:`, err);
+      });
 
-    tasks.forEach((task, index) => {
-      const coreIndex = index % numCPUs;
-      taskGroups[coreIndex].push(task);
-    });
+      console.log(`Task ${t.id} added to queue`);
+      acceptedTasks.push(t.id);
+    }
 
-    const promises = taskGroups.map((group, index) =>
-      group.length > 0
-        ? runWorker({ id: index + 1, tasks: group })
-        : Promise.resolve(null)
-    );
-
-    const results = await Promise.all(promises);
-
-    console.timeEnd("parallel-tasks");
-    console.log("All workers completed");
-    console.log(results);
-
-    return results;
+    return acceptedTasks;
   } catch (error) {
     console.error("Error executing tasks:", error);
   }

@@ -12,8 +12,10 @@
   "license": "ISC",
   "dependencies": {
     "@prisma/client": "^6.19.0",
+    "better-queue": "^3.8.12",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
+    "piscina": "^5.1.4",
     "prisma": "^6.19.0"
   }
 }
