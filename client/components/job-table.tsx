@@ -56,7 +56,7 @@ const JobTable = ({ jobs, isLoading }: { jobs: Job[]; isLoading: boolean }) => {
         <TableBody>
           {isLoading ? (
             <TableRow>
-              <TableCell colSpan={7} className="py-10 text-center">
+              <TableCell colSpan={9} className="py-10 text-center">
                 <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
                   <LoaderCircle className="h-6 w-6 animate-spin" />
                   <span>Loading jobs...</span>
@@ -154,7 +154,7 @@ const JobTable = ({ jobs, isLoading }: { jobs: Job[]; isLoading: boolean }) => {
           ) : (
             <TableRow>
               <TableCell
-                colSpan={7}
+                colSpan={9}
                 className="text-center py-8 text-muted-foreground"
               >
                 No jobs found
