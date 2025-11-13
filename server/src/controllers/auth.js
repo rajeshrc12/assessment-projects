@@ -34,3 +34,8 @@ export const login = async (req, res) => {
     return res.status(500).json({ error: "Login failed" });
   }
 };
+
+export const logout = async (req, res) => {
+  res.clearCookie("token");
+  return res.status(201).json({ message: "logged out" });
+};
