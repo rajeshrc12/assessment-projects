@@ -10,7 +10,7 @@ datasource db {
 
 model User {
   id         Int      @id @default(autoincrement())
-  name       String
+  name       String   @unique
   currentCpu Int      @default(1)
   createdAt  DateTime @default(now())
   jobs       Job[]

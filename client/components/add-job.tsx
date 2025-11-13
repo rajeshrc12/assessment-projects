@@ -89,7 +89,7 @@ const AddJob = () => {
         })),
       });
       console.log("Job created:", response);
-      queryClient.invalidateQueries({ queryKey: ["jobs"] });
+      queryClient.invalidateQueries({ queryKey: ["user"] });
       cleanup();
     } catch (error: any) {
       console.error("Error creating job:", error);

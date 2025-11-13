@@ -6,10 +6,15 @@ export const login = async (req, res) => {
   try {
     const { name } = req.body;
 
-    // Create user (your existing code)
-    const user = await prisma.user.create({
-      data: { name },
+    let user = await prisma.user.findUnique({
+      where: { name },
     });
+
+    if (!user) {
+      user = await prisma.user.create({
+        data: { name },
+      });
+    }
 
     // Generate JWT
     const token = jwt.sign({ id: user.id }, jwt_secret, {
