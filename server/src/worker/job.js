@@ -2,12 +2,11 @@ import os from "os";
 import Piscina from "piscina";
 import BetterQueue from "better-queue";
 import { prisma } from "../config/prisma.js";
-
-const numCPUs = os.cpus().length;
+import { cpuCount } from "../config/common.js";
 
 const piscina = new Piscina({
   filename: "./src/worker/factorial.js",
-  maxThreads: numCPUs,
+  maxThreads: cpuCount,
 });
 
 const queue = new BetterQueue(
@@ -34,7 +33,7 @@ const queue = new BetterQueue(
     }
   },
   {
-    concurrent: numCPUs,
+    concurrent: cpuCount,
   }
 );
 

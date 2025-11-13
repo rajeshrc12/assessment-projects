@@ -14,27 +14,33 @@ import { Job } from "@/types/common";
 import { fromNow } from "@/lib/date";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { useCpu } from "@/hooks/useCpu";
 
 const DashboardPage = () => {
   const { data: jobs, isLoading, refetch } = useJobs();
+  const { data: cpu } = useCpu();
   const [tick, setTick] = useState(0);
   return (
     <div className="w-[80%] max-w-4xl mx-auto py-10">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-end justify-between mb-6">
         <div className="flex items-center gap-2">
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-            Job Dashboard
-          </h1>
-          <Button
-            variant={"ghost"}
-            onClick={async () => {
-              await refetch();
-              setTick((prev) => prev + 1);
-            }}
-          >
-            <RefreshCcw />
-          </Button>
+          <div className="flex flex-col">
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+              Job Dashboard
+              <Button
+                variant={"ghost"}
+                onClick={async () => {
+                  await refetch();
+                  setTick((prev) => prev + 1);
+                }}
+              >
+                <RefreshCcw />
+              </Button>
+            </h1>
+            <div>Available CPU: {cpu?.count}</div>
+            <div>Currently using: {cpu?.count}</div>
+          </div>
         </div>
 
         <AddJob />
