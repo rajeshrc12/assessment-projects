@@ -6,7 +6,7 @@ import { distributeTasks } from "../utils/cpu.js";
 import { database_url } from "../config/env.js";
 
 const piscina = new Piscina({
-  filename: "./src/worker/factorial.js",
+  filename: "./src/worker/task.js",
   maxThreads: cpuCount,
   env: {
     DATABASE_URL: database_url,
