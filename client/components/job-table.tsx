@@ -1,4 +1,4 @@
-import { Job } from "@/types/common";
+import { Job, Task } from "@/types/common";
 import {
   Table,
   TableBody,
@@ -7,19 +7,36 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { LoaderCircle } from "lucide-react";
+import { Eye, LoaderCircle, Square } from "lucide-react";
 import { fromNow } from "@/lib/date";
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { useState } from "react";
+import { Button } from "./ui/button";
+import TaskTable from "./task-table";
+
 const headers = [
   "SR",
   "Name",
   "Tasks",
+  "CPU Used",
   "Status",
   "Percentage",
   "Total Time",
   "Created At",
+  "Actions",
 ];
 
 const JobTable = ({ jobs, isLoading }: { jobs: Job[]; isLoading: boolean }) => {
+  const [open, setOpen] = useState(false);
+  const [jobData, setJobData] = useState<Job>();
   return (
     <div className="rounded-lg border border-border bg-card shadow-sm overflow-hidden">
       <Table>
@@ -73,6 +90,7 @@ const JobTable = ({ jobs, isLoading }: { jobs: Job[]; isLoading: boolean }) => {
                   <TableCell className="px-4 py-3">
                     {job.tasks.length}
                   </TableCell>
+                  <TableCell className="px-4 py-3">{job.currentCpu}</TableCell>
                   <TableCell className="px-4 py-3">
                     <span className="inline-flex items-center gap-1.5 text-sm font-medium">
                       <span
@@ -110,6 +128,26 @@ const JobTable = ({ jobs, isLoading }: { jobs: Job[]; isLoading: boolean }) => {
                   >
                     {fromNow(job.createdAt)}
                   </TableCell>
+                  <TableCell
+                    // key={tick}
+                    className="flex gap-2 px-4 py-3 text-muted-foreground"
+                  >
+                    <Button
+                      className="h-8 w-8"
+                      variant={"outline"}
+                      onClick={() => {
+                        setOpen(true);
+                        setJobData(job);
+                      }}
+                    >
+                      <Eye />
+                    </Button>
+                    {status != "Completed" && (
+                      <Button className="h-8 w-8" variant={"outline"}>
+                        <Square />
+                      </Button>
+                    )}
+                  </TableCell>
                 </TableRow>
               );
             })
@@ -125,6 +163,20 @@ const JobTable = ({ jobs, isLoading }: { jobs: Job[]; isLoading: boolean }) => {
           )}
         </TableBody>
       </Table>
+      <AlertDialog open={open} onOpenChange={setOpen}>
+        <AlertDialogContent className="max-w-lg">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Job Details</AlertDialogTitle>
+            <AlertDialogDescription>
+              Below is the information related to this job.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <TaskTable jobData={jobData as Job} />
+          <AlertDialogFooter>
+            <AlertDialogCancel>Close</AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

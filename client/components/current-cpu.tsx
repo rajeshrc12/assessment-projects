@@ -23,7 +23,7 @@ const CurrentCpu = ({
   }, [initialCpu]);
 
   const handleSave = async () => {
-    if (currentCpu == availableCpu) {
+    if (Number(currentCpu) == Number(initialCpu)) {
       toast.error("Enter a new value");
       return;
     }

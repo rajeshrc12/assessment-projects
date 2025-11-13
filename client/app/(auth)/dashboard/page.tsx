@@ -1,10 +1,8 @@
 "use client";
 
 import { RefreshCcw } from "lucide-react";
-
 import AddJob from "@/components/add-job";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
 import { useUser } from "@/hooks/useUser";
 import CurrentCpu from "@/components/current-cpu";
 import { toast } from "sonner";
@@ -12,7 +10,6 @@ import JobTable from "@/components/job-table";
 
 const DashboardPage = () => {
   const { data: user, refetch, isLoading } = useUser();
-  const [tick, setTick] = useState(0);
   return (
     <div className="w-[80%] max-w-4xl mx-auto py-10">
       {/* Header */}
@@ -25,7 +22,6 @@ const DashboardPage = () => {
                 variant={"ghost"}
                 onClick={async () => {
                   await refetch();
-                  setTick((prev) => prev + 1);
                   toast.success("Dashboard refreshed");
                 }}
               >

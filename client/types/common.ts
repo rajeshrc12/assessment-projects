@@ -7,6 +7,7 @@ export interface Task {
   time: number;
   status: TaskStatus;
   createdAt: string;
+  updatedAt: string;
 }
 
 // Job-level status (derived)
@@ -15,7 +16,9 @@ export type JobStatus = "Completed" | "In Progress";
 export interface Job {
   id: number;
   name: string;
+  currentCpu: number;
   createdAt: string;
+  updatedAt: string;
   totalTime: number;
   tasks: Task[];
 }
