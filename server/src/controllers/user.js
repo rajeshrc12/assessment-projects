@@ -9,6 +9,9 @@ export const getUser = async (req, res) => {
       where: { id: userId },
       include: {
         jobs: {
+          orderBy: {
+            updatedAt: "desc",
+          },
           include: {
             tasks: true,
           },

@@ -16,6 +16,7 @@ import React, { useState } from "react";
 import { Delete, Loader } from "lucide-react";
 import api from "@/lib/api";
 import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 const AddJob = ({ currentCpu }: { currentCpu: number }) => {
   const [tasks, setTasks] = useState<{
@@ -81,7 +82,7 @@ const AddJob = ({ currentCpu }: { currentCpu: number }) => {
     setLoading(true);
 
     try {
-      const response = await api.post("/job", {
+      const job = await api.post("/job", {
         name: jobName,
         currentCpu,
         tasks: Object.values(tasks).map((task) => ({
@@ -89,11 +90,18 @@ const AddJob = ({ currentCpu }: { currentCpu: number }) => {
           time: Number(task.time),
         })),
       });
-      console.log("Job created:", response);
-      queryClient.invalidateQueries({ queryKey: ["user"] });
+      console.log(job);
+      if (job.status == 201) {
+        toast.success("Job created successfully");
+        queryClient.invalidateQueries({ queryKey: ["user"] });
+      }
     } catch (error: any) {
       console.error("Error creating job:", error);
       setError(
+        error.response?.data?.message ||
+          "Failed to create job. Please try again."
+      );
+      toast.error(
         error.response?.data?.message ||
           "Failed to create job. Please try again."
       );
