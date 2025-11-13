@@ -32,8 +32,8 @@ const DashboardPage = () => {
               Available CPU: {user?.availableCpu ? user.availableCpu : 0}
             </div>
             <CurrentCpu
-              currentCpu={user?.currentCpu}
-              availableCpu={user?.availableCpu}
+              currentCpu={user?.currentCpu || 0}
+              availableCpu={user?.availableCpu ? user.availableCpu : 0}
             />
           </div>
         </div>
