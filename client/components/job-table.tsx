@@ -142,11 +142,6 @@ const JobTable = ({ jobs, isLoading }: { jobs: Job[]; isLoading: boolean }) => {
                     >
                       <Eye />
                     </Button>
-                    {status != "Completed" && (
-                      <Button className="h-8 w-8" variant={"outline"}>
-                        <Square />
-                      </Button>
-                    )}
                   </TableCell>
                 </TableRow>
               );
