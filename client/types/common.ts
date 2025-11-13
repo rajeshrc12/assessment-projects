@@ -16,5 +16,6 @@ export interface Job {
   id: number;
   name: string;
   createdAt: string;
+  totalTime: number;
   tasks: Task[];
 }

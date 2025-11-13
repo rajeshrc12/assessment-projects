@@ -17,7 +17,7 @@ import { Delete, Loader } from "lucide-react";
 import api from "@/lib/api";
 import { useQueryClient } from "@tanstack/react-query";
 
-const AddJob = () => {
+const AddJob = ({ currentCpu }: { currentCpu: number }) => {
   const [tasks, setTasks] = useState<{
     [key: string]: { name: string; time: string };
   }>({});
@@ -83,6 +83,7 @@ const AddJob = () => {
     try {
       const response = await api.post("/job", {
         name: jobName,
+        currentCpu,
         tasks: Object.values(tasks).map((task) => ({
           ...task,
           time: Number(task.time),
@@ -90,7 +91,6 @@ const AddJob = () => {
       });
       console.log("Job created:", response);
       queryClient.invalidateQueries({ queryKey: ["user"] });
-      cleanup();
     } catch (error: any) {
       console.error("Error creating job:", error);
       setError(
@@ -98,8 +98,7 @@ const AddJob = () => {
           "Failed to create job. Please try again."
       );
     } finally {
-      setLoading(false);
-      setOpen(false);
+      cleanup();
     }
   };
 
@@ -107,6 +106,8 @@ const AddJob = () => {
     setTasks({});
     setError("");
     setJobName("");
+    setLoading(false);
+    setOpen(false);
   };
 
   return (

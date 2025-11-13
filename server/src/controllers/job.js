@@ -18,7 +18,7 @@ export const getJobs = async (req, res) => {
 
 export const addJob = async (req, res) => {
   try {
-    const { name = "", tasks = [] } = req.body;
+    const { name, tasks, currentCpu } = req.body;
     const userId = req.user.id;
 
     if (!name) {
@@ -29,6 +29,7 @@ export const addJob = async (req, res) => {
       data: {
         name,
         userId,
+        currentCpu,
         tasks: tasks?.length
           ? {
               create: tasks.map((task) => ({

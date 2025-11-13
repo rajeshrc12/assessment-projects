@@ -14,6 +14,7 @@ import { fromNow } from "@/lib/date";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useUser } from "@/hooks/useUser";
+import CurrentCpu from "@/components/current-cpu";
 
 const DashboardPage = () => {
   const { data: user, refetch, isLoading } = useUser();
@@ -36,12 +37,12 @@ const DashboardPage = () => {
                 <RefreshCcw />
               </Button>
             </h1>
-            <div>Available CPU: {user?.availableCpu}</div>
-            <div>Currently using: {user?.currentCpu}</div>
+            <div>Available CPU: {user?.availableCpu || 0}</div>
+            <CurrentCpu currentCpu={user?.currentCpu} />
           </div>
         </div>
 
-        <AddJob />
+        <AddJob currentCpu={user?.currentCpu} />
       </div>
 
       {/* Table Wrapper */}
@@ -63,6 +64,9 @@ const DashboardPage = () => {
               </TableHead>
               <TableHead className="h-10 px-4 text-left text-sm font-medium">
                 Percentage
+              </TableHead>
+              <TableHead className="h-10 px-4 text-left text-sm font-medium">
+                Total Time
               </TableHead>
               <TableHead className="h-10 px-4 text-left text-sm font-medium">
                 Created At
@@ -131,6 +135,9 @@ const DashboardPage = () => {
                       >
                         {percentage}%
                       </span>
+                    </TableCell>
+                    <TableCell className="px-4 py-3 text-muted-foreground">
+                      {Number(job.totalTime)}s
                     </TableCell>
                     <TableCell
                       key={tick}

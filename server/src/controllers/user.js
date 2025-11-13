@@ -15,9 +15,33 @@ export const getUser = async (req, res) => {
         },
       },
     });
+    const jobsWithTotalTime = user?.jobs.map((job) => {
+      const jobStart = job.createdAt;
 
-    console.log(user, userId);
-    return res.json({ ...user, availableCpu: cpuCount });
+      const latestTask = job.tasks.length
+        ? job.tasks.reduce((a, b) => (a.updatedAt > b.updatedAt ? a : b))
+        : null;
+
+      if (!latestTask) {
+        return {
+          ...job,
+          totalTime: 0,
+        };
+      }
+
+      const diffMs = latestTask.updatedAt - jobStart;
+      const diffSec = (diffMs / 1000).toFixed(2);
+
+      return {
+        ...job,
+        totalTime: diffSec,
+      };
+    });
+    return res.json({
+      ...user,
+      jobs: jobsWithTotalTime,
+      availableCpu: cpuCount,
+    });
   } catch (error) {
     console.error("Error fetching jobs:", error);
     return res.status(500).json({ error: "Failed to fetch jobs" });

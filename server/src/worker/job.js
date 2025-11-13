@@ -2,44 +2,45 @@ import Piscina from "piscina";
 import BetterQueue from "better-queue";
 import { prisma } from "../config/prisma.js";
 import { cpuCount } from "../config/common.js";
+import { distributeTasks } from "../utils/cpu.js";
+import { database_url } from "../config/env.js";
 
 const piscina = new Piscina({
   filename: "./src/worker/factorial.js",
   maxThreads: cpuCount,
+  env: {
+    DATABASE_URL: database_url, // pass the value into worker
+  },
 });
 
-const queue = new BetterQueue(
-  async (task, done) => {
-    try {
-      console.log(`Processing Task ID ${task.id}`);
-      const result = await piscina.run(task);
+const queue = new BetterQueue(async (job, done) => {
+  try {
+    const tasks = job?.tasks || [];
+    const currentCpu = Number(job?.currentCpu);
+    const groupedTasks = distributeTasks(tasks, currentCpu);
+    console.log(groupedTasks);
+    const results = await Promise.all(
+      groupedTasks.map((group) => piscina.run(group))
+    );
+    await Promise.all(
+      results.flat().map(({ id }) =>
+        prisma.task.update({
+          where: { id },
+          data: { status: "success" },
+        })
+      )
+    );
 
-      const taskUpdate = await prisma.task.update({
-        where: { id: task.id },
-        data: { status: "success" },
-      });
-
-      console.log(`Task ${task.id} completed`, taskUpdate);
-      done(null, result);
-    } catch (err) {
-      const taskUpdate = await prisma.task.update({
-        where: { id: task.id },
-        data: { status: "failed" },
-      });
-
-      console.error(`Task ${task.id} failed`, err, taskUpdate);
-      done(err);
-    }
-  },
-  {
-    concurrent: cpuCount,
+    done(null, results);
+  } catch (err) {
+    console.error(`Job ${job.id} failed`, err);
+    done(err);
   }
-);
+});
 
 // Listen for queue-level events
 queue.on("drain", () => {
   console.log("All tasks in queue processed");
-  console.timeEnd("task");
 });
 queue.on("task_finish", (taskId, result) => {
   console.log(`Task finished:`, result);
@@ -51,23 +52,11 @@ export const executeTasks = async (job) => {
     if (!Array.isArray(tasks) || tasks.length === 0)
       throw new Error("Provide an array of tasks");
 
-    const acceptedTasks = [];
-    console.time("task");
-    for (const t of tasks) {
-      if (!t.id && !t.time) {
-        console.warn(`Skipping invalid task:`, t);
-        continue;
-      }
+    queue.push(job, (err, result) => {
+      if (err) console.error(`Queue error for job ${job.id}:`, err);
+    });
 
-      queue.push(t, (err, result) => {
-        if (err) console.error(`Queue error for task ${t.id}:`, err);
-      });
-
-      console.log(`Task ${t.id} added to queue`);
-      acceptedTasks.push(t.id);
-    }
-
-    return acceptedTasks;
+    return;
   } catch (error) {
     console.error("Error executing tasks:", error);
   }
