@@ -8,17 +8,15 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import AddJob from "@/components/add-job";
-import { useJobs } from "@/hooks/useJobs";
 import { LoaderCircle, RefreshCcw } from "lucide-react";
 import { Job } from "@/types/common";
 import { fromNow } from "@/lib/date";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import { useCpu } from "@/hooks/useCpu";
+import { useUser } from "@/hooks/useUser";
 
 const DashboardPage = () => {
-  const { data: jobs, isLoading, refetch } = useJobs();
-  const { data: cpu } = useCpu();
+  const { data: user, refetch, isLoading } = useUser();
   const [tick, setTick] = useState(0);
   return (
     <div className="w-[80%] max-w-4xl mx-auto py-10">
@@ -38,8 +36,8 @@ const DashboardPage = () => {
                 <RefreshCcw />
               </Button>
             </h1>
-            <div>Available CPU: {cpu?.count}</div>
-            <div>Currently using: {cpu?.count}</div>
+            <div>Available CPU: {user?.availableCpu}</div>
+            <div>Currently using: {user?.currentCpu}</div>
           </div>
         </div>
 
@@ -82,8 +80,8 @@ const DashboardPage = () => {
                   </div>
                 </TableCell>
               </TableRow>
-            ) : jobs && jobs.length > 0 ? (
-              jobs.map((job: Job, index: number) => {
+            ) : user?.jobs && user?.jobs.length > 0 ? (
+              user?.jobs.map((job: Job, index: number) => {
                 const totalTasks = job.tasks.length;
                 const completedTasks = job.tasks.filter(
                   (t) => t.status === "success"

@@ -3,7 +3,9 @@ import { executeTasks } from "../worker/job.js";
 
 export const getJobs = async (req, res) => {
   try {
+    const userId = req.user.id;
     const jobs = await prisma.job.findMany({
+      where: { id: userId },
       include: { tasks: true },
       orderBy: { createdAt: "desc" },
     });
@@ -17,6 +19,7 @@ export const getJobs = async (req, res) => {
 export const addJob = async (req, res) => {
   try {
     const { name = "", tasks = [] } = req.body;
+    const userId = req.user.id;
 
     if (!name) {
       return res.status(400).json({ error: "Job name is required" });
@@ -25,6 +28,7 @@ export const addJob = async (req, res) => {
     const job = await prisma.job.create({
       data: {
         name,
+        userId,
         tasks: tasks?.length
           ? {
               create: tasks.map((task) => ({

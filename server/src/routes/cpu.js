@@ -1,8 +1,12 @@
 import express from "express";
-import { getCpuCount } from "../controllers/cpu.js";
+import {
+  changeCurrentCpuCount,
+  getAvailableCpuCount,
+} from "../controllers/cpu.js";
 
 const cpuRouter = express.Router();
 
-cpuRouter.get("/", getCpuCount);
+cpuRouter.get("/", getAvailableCpuCount);
+cpuRouter.post("/", changeCurrentCpuCount);
 
 export default cpuRouter;

@@ -3,14 +3,14 @@
 import api from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
 
-async function fetchCpu() {
-  const res = await api.get(`/cpu`);
+async function fetchUser() {
+  const res = await api.get(`/user`);
   return res.data;
 }
 
-export function useCpu() {
+export function useUser() {
   return useQuery({
-    queryKey: ["cpu"],
-    queryFn: fetchCpu,
+    queryKey: ["user"],
+    queryFn: fetchUser,
   });
 }

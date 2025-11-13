@@ -1,4 +1,3 @@
-import os from "os";
 import Piscina from "piscina";
 import BetterQueue from "better-queue";
 import { prisma } from "../config/prisma.js";
