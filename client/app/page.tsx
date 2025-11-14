@@ -12,6 +12,10 @@ export default function Home() {
   const router = useRouter();
 
   const handleLogin = async () => {
+    if (!name.trim()) {
+      toast.error("Name cannot be empty");
+      return;
+    }
     try {
       setLoading(true);
       const user = await api.post("/auth/login", { name });
@@ -26,7 +30,7 @@ export default function Home() {
   return (
     <div className="h-screen w-full flex justify-center items-center">
       <div className="flex flex-col gap-5 w-[300px] p-4 border shadow rounded-lg">
-        <div className="font-bold text-xl">Register</div>
+        <div className="font-bold text-xl">Login</div>
 
         <Input
           value={name}
@@ -42,7 +46,7 @@ export default function Home() {
               Logging in...
             </span>
           ) : (
-            "Login"
+            "Submit"
           )}
         </Button>
       </div>
