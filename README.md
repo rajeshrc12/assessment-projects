@@ -2,9 +2,27 @@ https://github.com/user-attachments/assets/b653ddc2-82e7-4966-aaad-1ad045ba57b9
 
 ## Project Details ##
 
-**Quick Start (high level)**:
-- **Client**: `cd client && npm install && npm run dev` (copy `.env.example` to `.env` first)
-- **Server**: `cd server && npm install && cp .env.example .env && npx prisma migrate dev && npx prisma generate && npm run dev`
+**Development / Setup Steps (detailed)**
+
+- Clone repo and install dependencies for both packages.
+
+- Start server (local SQLite example):
+```
+cd server
+cp .env.example .env
+npm install
+npx prisma migrate dev
+npx prisma generate
+npm run dev
+```
+
+- Start client (point frontend to backend):
+```
+cd client
+cp .env.example .env
+npm install
+npm run dev
+```
 
 **Prerequisites**:
 - Node.js (v18+ recommended)
@@ -117,28 +135,6 @@ NEXT_PUBLIC_BACKEND_URL=http://localhost:3001
 
 Notes:
 - Authentication is cookie-based JWT. The server sets a `token` cookie on login; middleware decodes the JWT to populate `req.user` for protected routes.
-
-**Development / Setup Steps (detailed)**
-
-- Clone repo and install dependencies for both packages.
-
-- Start server (local SQLite example):
-```
-cd server
-cp .env.example .env
-npm install
-npx prisma migrate dev --name init
-npx prisma generate
-npm run dev
-```
-
-- Start client (point frontend to backend):
-```
-cd client
-cp .env.example .env
-npm install
-npm run dev
-```
 
 **Where to look next (developer pointers)**
 - Frontend data fetching: `client/hooks/useJobs.ts`, `client/hooks/useUser.ts` and `client/lib/api.ts`.
