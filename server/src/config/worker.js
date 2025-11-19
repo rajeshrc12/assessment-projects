@@ -19,6 +19,9 @@ class WorkerManager {
     }
     return WorkerManager.instance;
   }
+  terminateJob(jobId) {
+    this.queue = this.queue.filter((q) => q.jobId !== jobId);
+  }
 
   runNextTask() {
     if (this.isRunning) return;

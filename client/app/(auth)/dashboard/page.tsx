@@ -81,7 +81,7 @@ const DashboardPage = () => {
         </div>
       </div>
 
-      <JobTable jobs={user?.jobs} isLoading={isLoading} />
+      <JobTable jobs={user?.jobs} isLoading={isLoading} refetch={refetch} />
     </div>
   );
 };

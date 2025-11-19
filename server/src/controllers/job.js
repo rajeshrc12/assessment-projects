@@ -1,4 +1,5 @@
 import { prisma } from "../config/prisma.js";
+import { workerManager } from "../config/worker.js";
 import { executeTasks } from "../worker/job.js";
 
 export const getJobs = async (req, res) => {
@@ -47,5 +48,20 @@ export const addJob = async (req, res) => {
   } catch (error) {
     console.error("Error adding job:", error);
     return res.status(500).json({ error: "Failed to add job" });
+  }
+};
+
+export const terminateJob = async (req, res) => {
+  try {
+    const { jobId } = req.body;
+    workerManager.terminateJob(jobId);
+    const job = await prisma.task.updateMany({
+      where: { jobId },
+      data: { status: "terminated" },
+    });
+    return res.json(job);
+  } catch (error) {
+    console.error("Error while terminating job:", error);
+    return res.status(500).json({ error: "Failed to terminate job" });
   }
 };

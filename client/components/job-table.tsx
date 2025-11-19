@@ -7,7 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Eye, LoaderCircle, Square } from "lucide-react";
+import { Eye, Loader, LoaderCircle, Pause } from "lucide-react";
 import { fromNow } from "@/lib/date";
 import {
   AlertDialog,
@@ -21,6 +21,8 @@ import {
 import { useState } from "react";
 import { Button } from "./ui/button";
 import TaskTable from "./task-table";
+import api from "@/lib/api";
+import { toast } from "sonner";
 
 const headers = [
   "SR",
@@ -34,9 +36,18 @@ const headers = [
   "Actions",
 ];
 
-const JobTable = ({ jobs, isLoading }: { jobs: Job[]; isLoading: boolean }) => {
+const JobTable = ({
+  jobs,
+  isLoading,
+  refetch,
+}: {
+  jobs: Job[];
+  isLoading: boolean;
+  refetch: () => {};
+}) => {
   const [open, setOpen] = useState(false);
   const [jobData, setJobData] = useState<Job>();
+  const [loading, setLoading] = useState(false);
   return (
     <div className="rounded-lg border border-border bg-card shadow-sm overflow-hidden">
       <Table>
@@ -66,17 +77,29 @@ const JobTable = ({ jobs, isLoading }: { jobs: Job[]; isLoading: boolean }) => {
           ) : jobs && jobs.length > 0 ? (
             jobs.map((job: Job, index: number) => {
               const totalTasks = job.tasks.length;
+
               const completedTasks = job.tasks.filter(
                 (t) => t.status === "success"
               ).length;
+
+              const hasTerminated = job.tasks.some(
+                (t) => t.status === "terminated"
+              );
+
               const percentage =
                 totalTasks > 0
                   ? Math.round((completedTasks / totalTasks) * 100)
                   : 0;
-              const status =
-                completedTasks === totalTasks && totalTasks > 0
-                  ? "Completed"
-                  : "In Progress";
+
+              let status;
+
+              if (hasTerminated) {
+                status = "Terminated";
+              } else if (completedTasks === totalTasks && totalTasks > 0) {
+                status = "Completed";
+              } else {
+                status = "In Progress";
+              }
 
               return (
                 <TableRow
@@ -96,7 +119,9 @@ const JobTable = ({ jobs, isLoading }: { jobs: Job[]; isLoading: boolean }) => {
                       <span
                         className={
                           `h-2.5 w-2.5 rounded-full ` +
-                          (status === "Completed"
+                          (status === "Terminated"
+                            ? "bg-red-500"
+                            : status === "Completed"
                             ? "bg-green-500"
                             : "bg-yellow-500")
                         }
@@ -106,8 +131,11 @@ const JobTable = ({ jobs, isLoading }: { jobs: Job[]; isLoading: boolean }) => {
                   </TableCell>
 
                   <TableCell className="px-4 py-3">
-                    <span
-                      className={`inline-flex items-center justify-center rounded-full px-2.5 py-0.5 text-xs font-medium min-w-[45px] text-center
+                    {hasTerminated ? (
+                      "-"
+                    ) : (
+                      <span
+                        className={`inline-flex items-center justify-center rounded-full px-2.5 py-0.5 text-xs font-medium min-w-[45px] text-center
                         ${
                           percentage === 100
                             ? "bg-green-100 text-green-700 border border-green-300"
@@ -115,23 +143,21 @@ const JobTable = ({ jobs, isLoading }: { jobs: Job[]; isLoading: boolean }) => {
                             ? "bg-yellow-100 text-yellow-700 border border-yellow-300"
                             : "bg-red-100 text-red-700 border border-red-300"
                         }`}
-                    >
-                      {percentage}%
-                    </span>
+                      >
+                        {percentage}%
+                      </span>
+                    )}
                   </TableCell>
                   <TableCell className="px-4 py-3 text-muted-foreground">
-                    {Number(job.totalTime)}s
+                    {hasTerminated ? "-" : Number(job.totalTime) + "s"}
                   </TableCell>
                   <TableCell
-                    // key={tick}
+                    key={job.updatedAt}
                     className="px-4 py-3 text-muted-foreground"
                   >
                     {fromNow(job.createdAt)}
                   </TableCell>
-                  <TableCell
-                    // key={tick}
-                    className="flex gap-2 px-4 py-3 text-muted-foreground"
-                  >
+                  <TableCell className="flex gap-2 px-4 py-3 text-muted-foreground">
                     <Button
                       className="h-8 w-8"
                       variant={"outline"}
@@ -142,6 +168,27 @@ const JobTable = ({ jobs, isLoading }: { jobs: Job[]; isLoading: boolean }) => {
                     >
                       <Eye />
                     </Button>
+                    {!hasTerminated && percentage !== 100 && (
+                      <Button
+                        className="h-8 w-8"
+                        variant={"outline"}
+                        onClick={async () => {
+                          setLoading(true);
+                          await api.post("/job/terminate", {
+                            jobId: job.id,
+                          });
+                          refetch();
+                          setLoading(false);
+                          toast.success("Job terminated");
+                        }}
+                      >
+                        {loading ? (
+                          <Loader className="animate-spin" />
+                        ) : (
+                          <Pause />
+                        )}
+                      </Button>
+                    )}
                   </TableCell>
                 </TableRow>
               );
