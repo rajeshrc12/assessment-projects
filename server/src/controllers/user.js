@@ -50,3 +50,29 @@ export const getUser = async (req, res) => {
     return res.status(500).json({ error: "Failed to fetch jobs" });
   }
 };
+
+const clients = [];
+
+export const userEvents = (req, res) => {
+  const userId = req.user.id;
+
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
+  res.flushHeaders();
+
+  const client = { userId, res };
+  clients.push(client);
+  req.on("close", () => {
+    const index = clients.indexOf(client);
+    if (index !== -1) clients.splice(index, 1);
+  });
+};
+
+export const sendUserEvent = (userId) => {
+  clients
+    .filter((c) => c.userId === userId)
+    .forEach((c) => {
+      c.res.write(`data: refresh\n\n`);
+    });
+};

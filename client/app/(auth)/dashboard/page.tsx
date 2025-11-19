@@ -9,10 +9,28 @@ import { toast } from "sonner";
 import JobTable from "@/components/job-table";
 import api from "@/lib/api";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 const DashboardPage = () => {
   const { data: user, refetch, isLoading } = useUser();
   const router = useRouter();
+
+  useEffect(() => {
+    const source = new EventSource(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/events`,
+      {
+        withCredentials: true,
+      }
+    );
+
+    source.onmessage = (event) => {
+      if (event.data === "refresh") {
+        refetch();
+      }
+    };
+
+    return () => source.close();
+  }, []);
   return (
     <div className="w-[80%] max-w-4xl mx-auto py-10">
       <div className="flex items-center justify-between mb-8">

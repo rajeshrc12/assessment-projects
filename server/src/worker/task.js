@@ -1,22 +1,11 @@
-import { PrismaClient } from "../generated/prisma/index.js";
-
-const prisma = new PrismaClient();
-
-export default async (tasks) => {
-  const results = [];
-
-  for (const { id, time } of tasks) {
-    await new Promise((resolve) => {
-      setTimeout(() => {
-        resolve();
-      }, time * 1000);
-    });
-    await prisma.task.update({
-      where: { id },
-      data: { status: "success" },
-    });
-    results.push({ id, time });
-  }
-
-  return results;
+export default async (task) => {
+  const { id, time } = task;
+  console.log(`Task ${id} is executing...`);
+  await new Promise((resolve) => {
+    setTimeout(() => {
+      resolve();
+    }, time * 1000);
+  });
+  console.log(`Task ${id} is executed`);
+  return task;
 };

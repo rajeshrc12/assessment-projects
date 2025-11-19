@@ -90,7 +90,6 @@ const AddJob = ({ currentCpu }: { currentCpu: number }) => {
           time: Number(task.time),
         })),
       });
-      console.log(job);
       if (job.status == 201) {
         toast.success("Job created successfully");
         queryClient.invalidateQueries({ queryKey: ["user"] });

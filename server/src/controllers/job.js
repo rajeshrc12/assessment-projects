@@ -35,6 +35,7 @@ export const addJob = async (req, res) => {
               create: tasks.map((task) => ({
                 name: task.name,
                 time: task.time,
+                userId,
               })),
             }
           : undefined,
