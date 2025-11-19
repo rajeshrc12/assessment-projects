@@ -10,6 +10,7 @@ class WorkerManager {
       this.currentCpu = 1;
       this.runningCpu = 0;
       this.isRunning = false;
+      this.controllers = new Map();
       this.piscina = new Piscina({
         filename: "./src/worker/task.js",
         maxThreads: cpuCount,
@@ -21,6 +22,12 @@ class WorkerManager {
   }
   terminateJob(jobId) {
     this.queue = this.queue.filter((q) => q.jobId !== jobId);
+    for (const [taskId, ctrl] of this.controllers.entries()) {
+      if (taskId.startsWith(`${jobId}:`)) {
+        ctrl.abort();
+        this.controllers.delete(taskId);
+      }
+    }
   }
 
   runNextTask() {
@@ -36,21 +43,32 @@ class WorkerManager {
     this.isRunning = false;
   }
   async handleTask(task) {
+    const controller = new AbortController();
+    const key = `${task.jobId}:${task.id}`;
+    this.controllers.set(key, controller);
     try {
-      const result = await this.piscina.run(task);
-      if (result?.id)
-        await prisma.task.update({
-          where: { id: task?.id },
-          data: { status: "success" },
-        });
-    } catch (err) {
+      await this.piscina.run(task, { signal: controller.signal });
+
       await prisma.task.update({
         where: { id: task?.id },
-        data: { status: "failed" },
+        data: { status: "success" },
       });
-      console.error("Task failed:", err);
+    } catch (err) {
+      if (controller.signal.aborted) {
+        await prisma.task.update({
+          where: { id: task?.id },
+          data: { status: "terminated" },
+        });
+      } else {
+        await prisma.task.update({
+          where: { id: task?.id },
+          data: { status: "failed" },
+        });
+        console.error("Task failed:", err);
+      }
     } finally {
       sendUserEvent(task?.userId);
+      this.controllers.delete(key);
       this.runningCpu--;
       this.runNextTask();
     }

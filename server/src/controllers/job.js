@@ -55,11 +55,7 @@ export const terminateJob = async (req, res) => {
   try {
     const { jobId } = req.body;
     workerManager.terminateJob(jobId);
-    const job = await prisma.task.updateMany({
-      where: { jobId },
-      data: { status: "terminated" },
-    });
-    return res.json(job);
+    return res.json({ message: "job terminated" });
   } catch (error) {
     console.error("Error while terminating job:", error);
     return res.status(500).json({ error: "Failed to terminate job" });
