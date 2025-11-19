@@ -46,8 +46,8 @@ export const getUser = async (req, res) => {
       availableCpu: cpuCount,
     });
   } catch (error) {
-    console.error("Error fetching jobs:", error);
-    return res.status(500).json({ error: "Failed to fetch jobs" });
+    console.error("Error getting user:", error);
+    return res.status(500).json({ error: "Error getting user" });
   }
 };
 

@@ -4,8 +4,8 @@ export const getAvailableCpuCount = async (req, res) => {
   try {
     return res.json({ count: cpuCount });
   } catch (error) {
-    console.error("Error fetching jobs:", error);
-    return res.status(500).json({ error: "Failed to fetch jobs" });
+    console.error("Error fetching cpu count:", error);
+    return res.status(500).json({ error: "Failed to fetch cpu count" });
   }
 };
 
@@ -19,7 +19,9 @@ export const changeCurrentCpuCount = async (req, res) => {
     });
     return res.json(user);
   } catch (error) {
-    console.error("Error fetching jobs:", error);
-    return res.status(500).json({ error: "Failed to fetch jobs" });
+    console.error("Error while changing current cpu cout", error);
+    return res
+      .status(500)
+      .json({ error: "Error while changing current cpu cout" });
   }
 };
