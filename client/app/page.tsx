@@ -19,7 +19,7 @@ export default function Home() {
     try {
       setLoading(true);
       const user = await api.post("/auth/login", { name });
-      if (user.status === 200) {
+      if (user.status === 201) {
         router.push("/dashboard");
       }
     } catch (e) {

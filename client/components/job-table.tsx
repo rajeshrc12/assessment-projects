@@ -49,11 +49,13 @@ const JobTable = ({
   const [jobData, setJobData] = useState<Job>();
   const [openDelete, setOpenDelete] = useState(0);
   const handleTerminateJob = async () => {
-    await api.post("/job/terminate", {
+    const job = await api.post("/job/terminate", {
       jobId: openDelete,
     });
-    toast.success("Job terminated");
-    refetch();
+    if (job.status === 200) {
+      toast.success("Job terminated");
+      refetch();
+    }
   };
   return (
     <div className="rounded-lg border border-border bg-card shadow-sm overflow-hidden">

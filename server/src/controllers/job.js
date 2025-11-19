@@ -1,6 +1,5 @@
 import { prisma } from "../config/prisma.js";
 import { workerManager } from "../config/worker.js";
-import { executeTasks } from "../worker/job.js";
 
 export const getJobs = async (req, res) => {
   try {
@@ -43,7 +42,8 @@ export const addJob = async (req, res) => {
       },
       include: { tasks: true },
     });
-    executeTasks(job);
+    workerManager.setCurrentCpu(job.currentCpu);
+    workerManager.addTasks(job.tasks);
     return res.status(201).json(job);
   } catch (error) {
     console.error("Error adding job:", error);

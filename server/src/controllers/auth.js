@@ -28,7 +28,7 @@ export const login = async (req, res) => {
       sameSite: "lax",
     });
 
-    return res.json({ message: "Logged in", user });
+    return res.status(201).json({ message: "Logged in", user });
   } catch (error) {
     console.error("Error logging in:", error);
     return res.status(500).json({ error: "Login failed" });
@@ -37,5 +37,5 @@ export const login = async (req, res) => {
 
 export const logout = async (req, res) => {
   res.clearCookie("token");
-  return res.status(201).json({ message: "logged out" });
+  return res.json({ message: "logged out" });
 };

@@ -66,7 +66,7 @@ const DashboardPage = () => {
             <Button
               onClick={async () => {
                 const response = await api.post("/auth/logout");
-                if (response.status === 201) {
+                if (response.status === 200) {
                   router.push("/");
                   toast.success("logged out successfully");
                 }
