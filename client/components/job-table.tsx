@@ -11,6 +11,7 @@ import { Eye, Loader, LoaderCircle, Pause } from "lucide-react";
 import { fromNow } from "@/lib/date";
 import {
   AlertDialog,
+  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -25,7 +26,6 @@ import api from "@/lib/api";
 import { toast } from "sonner";
 
 const headers = [
-  "SR",
   "Name",
   "Tasks",
   "CPU Used",
@@ -47,7 +47,14 @@ const JobTable = ({
 }) => {
   const [open, setOpen] = useState(false);
   const [jobData, setJobData] = useState<Job>();
-  const [loading, setLoading] = useState(false);
+  const [openDelete, setOpenDelete] = useState(0);
+  const handleTerminateJob = async () => {
+    await api.post("/job/terminate", {
+      jobId: openDelete,
+    });
+    toast.success("Job terminated");
+    refetch();
+  };
   return (
     <div className="rounded-lg border border-border bg-card shadow-sm overflow-hidden">
       <Table>
@@ -106,7 +113,6 @@ const JobTable = ({
                   key={job.id}
                   className="hover:bg-muted/30 transition-colors"
                 >
-                  <TableCell className="px-4 py-3">{index + 1}</TableCell>
                   <TableCell className="px-4 py-3 font-medium text-foreground">
                     {job.name}
                   </TableCell>
@@ -171,22 +177,10 @@ const JobTable = ({
                     {!hasTerminated && percentage !== 100 && (
                       <Button
                         className="h-8 w-8"
-                        variant={"outline"}
-                        onClick={async () => {
-                          setLoading(true);
-                          await api.post("/job/terminate", {
-                            jobId: job.id,
-                          });
-                          refetch();
-                          setLoading(false);
-                          toast.success("Job terminated");
-                        }}
+                        variant={"destructive"}
+                        onClick={() => setOpenDelete(job.id)}
                       >
-                        {loading ? (
-                          <Loader className="animate-spin" />
-                        ) : (
-                          <Pause />
-                        )}
+                        <Pause />
                       </Button>
                     )}
                   </TableCell>
@@ -216,6 +210,27 @@ const JobTable = ({
           <TaskTable jobData={jobData as Job} />
           <AlertDialogFooter>
             <AlertDialogCancel>Close</AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      <AlertDialog
+        open={!!openDelete}
+        onOpenChange={() => {
+          setOpenDelete(0);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will terminate your job
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleTerminateJob}>
+              Terminate
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

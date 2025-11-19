@@ -7,7 +7,7 @@ import { useUser } from "@/hooks/useUser";
 import CurrentCpu from "@/components/current-cpu";
 import { toast } from "sonner";
 import JobTable from "@/components/job-table";
-import api from "@/lib/api";
+import api, { baseURL } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
@@ -16,12 +16,9 @@ const DashboardPage = () => {
   const router = useRouter();
 
   useEffect(() => {
-    const source = new EventSource(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/events`,
-      {
-        withCredentials: true,
-      }
-    );
+    const source = new EventSource(`${baseURL}/user/events`, {
+      withCredentials: true,
+    });
 
     source.onmessage = (event) => {
       if (event.data === "refresh") {
