@@ -1,5 +1,5 @@
 import Piscina from "piscina";
-import { cpuCount } from "./common.js";
+import { cpuCount, taskWorkerPath } from "./common.js";
 import { prisma } from "../config/prisma.js";
 import { sendUserEvent } from "../controllers/user.js";
 
@@ -12,7 +12,7 @@ class WorkerManager {
       this.isRunning = false;
       this.controllers = new Map();
       this.piscina = new Piscina({
-        filename: "./src/worker/task.js",
+        filename: taskWorkerPath,
         maxThreads: cpuCount,
       });
 
