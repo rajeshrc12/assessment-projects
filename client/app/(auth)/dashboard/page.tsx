@@ -59,20 +59,22 @@ const DashboardPage = () => {
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
-          <div className="text-sm font-medium">Welcome, {user?.name}</div>
+        <div className="flex flex-col items-end justify-end gap-4">
+          <div className="flex items-center gap-2">
+            <div className="text-xl font-medium">Welcome, {user?.name}</div>
 
-          <Button
-            onClick={async () => {
-              const response = await api.post("/auth/logout");
-              if (response.status === 201) {
-                router.push("/");
-                toast.success("logged out successfully");
-              }
-            }}
-          >
-            Logout
-          </Button>
+            <Button
+              onClick={async () => {
+                const response = await api.post("/auth/logout");
+                if (response.status === 201) {
+                  router.push("/");
+                  toast.success("logged out successfully");
+                }
+              }}
+            >
+              Logout
+            </Button>
+          </div>
 
           <AddJob currentCpu={user?.currentCpu} />
         </div>
